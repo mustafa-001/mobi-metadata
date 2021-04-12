@@ -66,6 +66,11 @@ void mobi_exth_header::deserialize(std::istream &input) {
     auto r = parse_record(input);
     records.push_back(r);
   }
+  //While this is not necessary by MOBI standart two option available isn't much
+  //useful: first we could throw and exception, second we would try to skip end of
+  //the exth header via exth_length, meaning it's still cumbersome.
+  //Some books may give ´exth_length´ as nul padded value so we need to account for possible
+  //3 bytes difference between ´exth_length´ and this.length()
   while (exth_length - 3 > length()){
     std::cout << "There is still data in exth header after parsing all records!" << std::endl;
     std::cout << "exth length in book: " << exth_length << "   currently parsed: " << length() << std::endl;
@@ -73,6 +78,8 @@ void mobi_exth_header::deserialize(std::istream &input) {
     records.push_back(r);
   }
 
+  //Consume the nul padding. Some books may give ´exth_length´ as nul padded value so
+  //we cannot count on this.length(). (actually we can)
   if (exth_length % 4 != 0) {
     for (unsigned int i = 0; i < 4-(exth_length % 4); i++) {
       input.get();
