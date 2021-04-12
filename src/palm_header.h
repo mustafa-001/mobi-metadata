@@ -19,6 +19,9 @@ struct palmdatabase_header{
 
 void palmdatabase_header::update_record_offsets(int delta){
   for(auto& o: record_offsets){
+    if (o == 0){
+      break;
+    }
     o += delta;
   }
   record_offsets[0] -= delta;
@@ -28,7 +31,7 @@ void palmdatabase_header::deserialize(std::istream& input){
   start_blob.resize(76);
   input.readsome(start_blob.data(), 76);
   auto pdb_records = parse_u16_be(input);
-  std::cout<< "number of pdb records: " << std::hex << std::showbase << pdb_records <<"\n";
+  // std::cout<< "number of pdb records: " << std::hex << std::showbase << pdb_records <<"\n";
   for(int i=0; i < pdb_records; i++ ){
     record_offsets.push_back(parse_u32_be(input));
     //record info, mostly useless
