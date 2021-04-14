@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 #include <ios>
 #include <sstream>
+#include <vector>
 
 TEST(record0, deserialize_record0) {
   auto r = record0{};
@@ -78,4 +79,10 @@ TEST(exth_header, round) {
   EXPECT_EQ(i.str()[268], o.str()[20]);
   EXPECT_EQ(i.str()[288], o.str()[40]);
   EXPECT_EQ(i.str()[458], o.str()[210]);
+}
+
+TEST(parse_u32, with_iterators){
+  std::vector<char>v {0x2c, 0x00, 0x08, 0x1e};
+  unsigned int u = parse_u32_be(v.begin());
+  EXPECT_EQ(u, 0x2c*256*256*256+0x8*256+0x1e);
 }

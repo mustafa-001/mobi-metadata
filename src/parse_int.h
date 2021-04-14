@@ -1,7 +1,11 @@
 #ifndef PARSE_IN_H
 #define PARSE_IN_H
 // #include <bits/stdint-uintn.h>
+#include <bits/stdint-uintn.h>
+#include <cstdio>
+#include <iostream>
 #include <istream>
+#include <iterator>
 #include <vector>
 uint32_t parse_u32_be(char *buffer);
 uint32_t parse_u32_be(std::istream &stream, uint32_t offset);
@@ -22,6 +26,15 @@ uint32_t parse_u32_be(std::istream &stream) {
   std::vector<char> buffer(4, '\0');
   stream.read(&buffer[0], 4);
   return parse_u32_be(&buffer[0]);
+}
+
+template <typename Iter> uint32_t parse_u32_be(Iter input) {
+  uint32_t res = 0;
+  for (int i = 0; i < 3; i++) {
+    res = (res+*reinterpret_cast<unsigned char *>(&*input)) * 256;
+    input++;
+  }
+  return res + *input;
 }
 
 uint32_t parse_u32_be(char *buffer) {
