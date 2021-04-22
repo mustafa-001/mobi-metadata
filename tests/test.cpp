@@ -11,12 +11,12 @@ TEST(record0, deserialize_record0) {
   std::copy(record0_example.begin(), record0_example.end(),
             std::ostream_iterator<uint8_t>(i));
   r.deserialize(i, record0_example.size());
-  EXPECT_TRUE(r.mobi_blob[1] == 0x02);
+  EXPECT_TRUE(r.palmDoc_header[1] == 0x02);
   EXPECT_TRUE(r.exth_header.records[1].type ==
               mobi_metadata_record_type::publisher);
 };
 
-TEST(record0, serialize) {
+TEST(record0, round_trip) {
   auto r = record0{};
   auto i = std::stringstream{};
   auto o = std::stringstream{};
@@ -30,6 +30,18 @@ TEST(record0, serialize) {
   EXPECT_EQ(o.str()[250], i.str()[250]);
   EXPECT_EQ(o.str()[-1], i.str()[-1]);
   EXPECT_EQ(o.str().length(), i.str().length());
+}
+
+TEST(mobi_header, deserialize) {
+  auto r = record0{};
+  auto i = std::stringstream{};
+  std::copy(record0_example.begin(), record0_example.end(),
+            std::ostream_iterator<uint8_t>(i));
+  r.deserialize(i, record0_example.size());
+  EXPECT_TRUE(r.mobi_h.length() == 0xe8);
+  EXPECT_EQ(r.mobi_h.get_first_non_book_index(), 0x81);
+  EXPECT_EQ(r.mobi_h.get_full_title_offset(), 0x6e8);
+  // EXPECT_EQ(r.mobi_h.get_full_title_length()(), "Foundation");
 };
 
 TEST(exth_header, deserialize) {
@@ -44,7 +56,6 @@ TEST(exth_header, deserialize) {
 }
 TEST(exth_header, serialize) {
   auto e = mobi_exth_header{};
-  auto i = std::stringstream{};
   auto o = std::stringstream{};
   mobi_metadata_record r{mobi_metadata_record_type::publisher, "tes"};
   e.records.push_back(r);

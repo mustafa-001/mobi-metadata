@@ -27,7 +27,7 @@ struct mobi_metadata_record {
   std::string data;
 };
 
-mobi_metadata_record parse_record(std::istream &input);
+auto parse_record(std::istream &input) -> mobi_metadata_record;
 
 class mobi_exth_header {
 public:
@@ -35,24 +35,24 @@ public:
   void serialize(std::ostream &output);
   void deserialize(std::istream &input);
   void write(std::ostream &out);
-  unsigned int length();
-  unsigned int nul_padded_length();
-
+  auto length() -> unsigned int;
+  auto nul_padded_length() -> unsigned int;
 private:
 };
-unsigned int mobi_exth_header::length() {
-  unsigned int res = 0;
-  for (auto &r : records) {
-    res += (r.data.size() + 4 + 4);
-  }
-  return res + 4 + 4 + 4;
-}
-unsigned int mobi_exth_header::nul_padded_length() {
+
+auto mobi_exth_header::nul_padded_length() -> unsigned int {
   if (length() % 4 == 0) {
     return length();
   } else {
     return (length() / 4 + 1) * 4;
   }
+}
+auto mobi_exth_header::length() -> unsigned int {
+  unsigned int res = 0;
+  for (auto &r : records) {
+    res += (r.data.size() + 4 + 4);
+  }
+  return res + 4 + 4 + 4;
 }
 
 void mobi_exth_header::deserialize(std::istream &input) {
@@ -116,7 +116,7 @@ void mobi_exth_header::serialize(std::ostream &out) {
 }
 // void mobi_exth_header::deserialize
 
-mobi_metadata_record parse_record(std::istream &input) {
+auto parse_record(std::istream &input) -> mobi_metadata_record {
   mobi_metadata_record_type type{parse_u32_be(input)};
   uint32_t length = parse_u32_be(input);
   auto data = std::string{}; //(length - 8, '\0');

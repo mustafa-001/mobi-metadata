@@ -32,7 +32,7 @@ const uint32_t EXTH_START = 0x590;
 const uint32_t FIRST_RECORD_OFFSET_OFFSET = 78;
 const uint32_t MOBI_PALMDOC_HEADER_LENGTH = 0x10;
 const uint32_t MOBI_LENGTH_OFFSET = 0x04;
-int main(int argc, char **argv) {
+auto main(int argc, char **argv) -> int {
   // palmdatabase_header a{};
   // std::stringstream b;
   // b.write("asdfasdfasdfasdfassdaa", 20);
@@ -51,15 +51,14 @@ int main(int argc, char **argv) {
     record0 r0{}; 
     input_book.seekg(palm_header.record_offsets[0]);
     r0.deserialize(input_book, palm_header.record_offsets[1]-palm_header.record_offsets[0]);
-    unsigned int old_exth_len = r0.exth_header.nul_padded_length();
+    unsigned int old_exth_len = (r0.exth_header.length() | 0b100) & 0b00;
     std::cout << "old exth len: " << old_exth_len << std::endl ;
-    // r0.exth_header.records[0].data = "A new and long author name";
-    // for(auto& r: r0.exth_header.records){
-    //   if(r.type == mobi_metadata_record_type::updated_title){
-    //     r.data ="A new and realllllllly long new title";
-    //   }
-    // }
-    unsigned int new_exth_len = r0.exth_header.nul_padded_length();
+    for(auto& r: r0.exth_header.records){
+      if(r.type == mobi_metadata_record_type::updated_title){
+        r.data ="A new and realllllllly long new title";
+      }
+    }
+    unsigned int new_exth_len = (r0.exth_header.length() | 0b100) & 0b00;
     std::cout << "new exth len: " << new_exth_len << std::endl;
     int exth_len_delta = new_exth_len - old_exth_len;
     std::cout << "delta: " << exth_len_delta << "\n";
